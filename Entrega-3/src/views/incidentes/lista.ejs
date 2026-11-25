@@ -1,0 +1,59 @@
+<%- include('../partials/app-top') %>
+<section class="card">
+  <form method="get" action="/incidentes" class="filters">
+    <div class="field">
+      <label for="q">Buscar</label>
+      <input id="q" name="q" value="<%= filtros.q %>" placeholder="Código o título" maxlength="100">
+    </div>
+    <div class="field">
+      <label for="estado">Estado</label>
+      <select id="estado" name="estado">
+        <option value="">Todos</option>
+        <% estados.forEach(e => { %><option value="<%= e.id %>"<%= filtros.estado === e.id ? ' selected' : '' %>><%= e.nombre %></option><% }) %>
+      </select>
+    </div>
+    <div class="field">
+      <label for="severidad">Severidad</label>
+      <select id="severidad" name="severidad">
+        <option value="">Todas</option>
+        <% severidades.forEach(s => { %><option value="<%= s.id %>"<%= filtros.severidad === s.id ? ' selected' : '' %>><%= s.nombre %></option><% }) %>
+      </select>
+    </div>
+    <div class="filters-actions">
+      <button type="submit" class="btn btn-light">Filtrar</button>
+      <a href="/incidentes" class="link-sm">Limpiar</a>
+      <a href="/incidentes/nuevo" class="btn btn-primary"><%- include('../partials/icon', { name: 'plus' }) %> Reportar incidente</a>
+    </div>
+  </form>
+
+  <table class="table table-cards">
+    <thead>
+      <tr>
+        <th>Código</th><th>Título</th><th>Categoría</th><th>Severidad</th><th>Estado</th>
+        <% if (esAdmin) { %><th>Reportado por</th><th>Responsable</th><% } %>
+        <th>Fecha</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% filas.forEach(i => { %>
+        <tr>
+          <td data-label="Código"><a href="/incidentes/<%= i.id %>"><strong><%= i.codigo %></strong></a></td>
+          <td data-label="Título"><a href="/incidentes/<%= i.id %>"><%= i.titulo %></a></td>
+          <td data-label="Categoría"><%= i.categoria %></td>
+          <td data-label="Severidad"><span class="badge badge-<%= f.claseNivel(i.severidad) %>"><%= i.severidad %></span></td>
+          <td data-label="Estado"><span class="estado estado-<%= f.claseEstado(i.estado, i.es_final) %>"><%= i.estado %></span></td>
+          <% if (esAdmin) { %>
+            <td data-label="Reportado por"><%= i.reportado_por || '—' %></td>
+            <td data-label="Responsable"><%= i.asignado_a || 'Sin asignar' %></td>
+          <% } %>
+          <td data-label="Fecha" class="nowrap"><%= f.fechaHora(i.creado_en) %></td>
+        </tr>
+      <% }) %>
+      <% if (!filas.length) { %>
+        <tr><td colspan="8" class="muted empty">No hay incidentes que coincidan con los filtros.</td></tr>
+      <% } %>
+    </tbody>
+  </table>
+  <%- include('../partials/paginacion', { base: '/incidentes', params: filtros }) %>
+</section>
+<%- include('../partials/app-bottom') %>

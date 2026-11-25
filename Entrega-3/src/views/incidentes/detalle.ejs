@@ -1,0 +1,95 @@
+<%- include('../partials/app-top') %>
+<div class="detail">
+  <section class="card">
+    <h2 class="detail-title"><%= inc.titulo %></h2>
+    <p class="meta">
+      <span class="badge badge-<%= f.claseNivel(inc.severidad) %>"><%= inc.severidad %></span>
+      <span class="estado estado-<%= f.claseEstado(inc.estado, inc.es_final) %>"><%= inc.estado %></span>
+      <span><%= inc.categoria %></span>
+    </p>
+    <div class="desc"><%= inc.descripcion %></div>
+
+    <h3>Línea de tiempo</h3>
+    <ol class="timeline">
+      <% seguimientos.forEach((s, idx) => { %>
+        <li class="<%= s.estado_nuevo && idx > 0 ? 'tl-change' : '' %>">
+          <p class="tl-head">
+            <strong><%= s.autor || 'Usuario eliminado' %></strong>
+            <% if (s.estado_anterior && s.estado_nuevo) { %>
+              <span class="pill"><%= s.estado_anterior %> → <%= s.estado_nuevo %></span>
+            <% } %>
+            <span class="meta"><%= f.fechaHora(s.creado_en) %></span>
+          </p>
+          <p class="tl-text"><%= s.comentario %></p>
+        </li>
+      <% }) %>
+    </ol>
+
+    <h3><%= esAdmin ? 'Gestionar incidente' : 'Agregar información' %></h3>
+    <form method="post" action="/incidentes/<%= inc.id %>/seguimientos" class="form" novalidate data-validate>
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <% if (esAdmin) { %>
+        <div class="grid-3">
+          <div class="field">
+            <label for="estado_id">Estado</label>
+            <select id="estado_id" name="estado_id">
+              <% estados.forEach(e => { %>
+                <option value="<%= e.id %>"<%= String(valores.estado_id || inc.estado_id) === String(e.id) ? ' selected' : '' %>><%= e.nombre %></option>
+              <% }) %>
+            </select>
+            <%- include('../partials/error-campo', { campo: 'estado_id' }) %>
+          </div>
+          <div class="field">
+            <label for="severidad_id">Severidad</label>
+            <select id="severidad_id" name="severidad_id">
+              <% severidades.forEach(s => { %>
+                <option value="<%= s.id %>"<%= String(valores.severidad_id || inc.severidad_id) === String(s.id) ? ' selected' : '' %>><%= s.nombre %></option>
+              <% }) %>
+            </select>
+            <%- include('../partials/error-campo', { campo: 'severidad_id' }) %>
+          </div>
+          <div class="field">
+            <label for="asignado_a">Responsable</label>
+            <% const asig = valores.asignado_a !== undefined ? String(valores.asignado_a) : String(inc.asignado_a || ''); %>
+            <select id="asignado_a" name="asignado_a">
+              <option value="">Sin asignar</option>
+              <% admins.forEach(a => { %>
+                <option value="<%= a.id %>"<%= asig === String(a.id) ? ' selected' : '' %>><%= a.nombre %> <%= a.apellido %></option>
+              <% }) %>
+            </select>
+            <%- include('../partials/error-campo', { campo: 'asignado_a' }) %>
+          </div>
+        </div>
+      <% } %>
+      <div class="field">
+        <label for="comentario">Comentario *</label>
+        <textarea id="comentario" name="comentario" rows="4" required minlength="3" maxlength="2000"
+                  placeholder="<%= esAdmin ? 'Acciones realizadas, hallazgos, próximos pasos...' : 'Información adicional para el equipo de seguridad...' %>"
+                  class="<%= errores.comentario ? 'invalid' : '' %>"><%= valores.comentario || '' %></textarea>
+        <%- include('../partials/error-campo', { campo: 'comentario' }) %>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Registrar seguimiento</button>
+      </div>
+    </form>
+  </section>
+
+  <aside class="card ficha">
+    <h2>Ficha</h2>
+    <dl>
+      <dt>Código</dt><dd><%= inc.codigo %></dd>
+      <dt>Reportado por</dt><dd><%= inc.reportado_nombre || '—' %></dd>
+      <dt>Responsable</dt><dd><%= inc.asignado_nombre || 'Sin asignar' %></dd>
+      <dt>Detectado</dt><dd><%= f.fechaHora(inc.fecha_deteccion) %></dd>
+      <dt>Reportado</dt><dd><%= f.fechaHora(inc.creado_en) %></dd>
+      <% if (inc.cerrado_en) { %><dt>Cerrado</dt><dd><%= f.fechaHora(inc.cerrado_en) %></dd><% } %>
+      <dt>Activo</dt><dd><%= inc.activo_nombre ? `${inc.activo_nombre} (${inc.activo_identificador})` : 'No aplica' %></dd>
+      <dt>SLA</dt>
+      <dd class="<%= sla.vencido ? 'text-danger' : '' %>">
+        <%= sla.horas %> h · <%= sla.transcurridas %> h <%= inc.es_final ? 'hasta el cierre' : 'transcurridas' %><%= sla.vencido ? ' (vencido)' : '' %>
+      </dd>
+    </dl>
+    <a href="/incidentes" class="btn btn-light btn-block">‹ Volver al listado</a>
+  </aside>
+</div>
+<%- include('../partials/app-bottom') %>

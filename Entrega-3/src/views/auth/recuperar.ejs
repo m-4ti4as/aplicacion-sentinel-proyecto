@@ -1,0 +1,16 @@
+<%- include('../partials/auth-top') %>
+<h1>Recuperar contraseña</h1>
+<p class="muted">Te enviaremos un enlace de un solo uso, válido por 30 minutos.</p>
+
+<form method="post" action="/recuperar" class="form" novalidate data-validate>
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+  <div class="field">
+    <label for="email">Correo electrónico</label>
+    <input id="email" name="email" type="email" autocomplete="email" required autofocus maxlength="190"
+           value="<%= valores.email || '' %>" class="<%= errores.email ? 'invalid' : '' %>">
+    <%- include('../partials/error-campo', { campo: 'email' }) %>
+  </div>
+  <button type="submit" class="btn btn-primary btn-block">Enviar enlace</button>
+  <p class="center"><a href="/login">‹ Volver a iniciar sesión</a></p>
+</form>
+<%- include('../partials/auth-bottom') %>

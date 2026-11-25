@@ -1,0 +1,61 @@
+<%- include('../partials/app-top') %>
+
+<section class="kpis">
+  <div class="kpi kpi-teal"><span>Eventos de acceso (7 días)</span><strong data-kpi="eventos7d"><%= f.numero(kpi.eventos7d) %></strong></div>
+  <div class="kpi kpi-orange"><span>Inicios fallidos (24 h)</span><strong data-kpi="fallos24h"><%= f.numero(kpi.fallos24h) %></strong></div>
+  <a class="kpi kpi-red" href="/admin/alertas"><span>Alertas sin revisar</span><strong data-kpi="alertas"><%= f.numero(kpi.alertasPendientes) %></strong></a>
+  <a class="kpi kpi-teal" href="/incidentes"><span>Incidentes abiertos</span><strong data-kpi="abiertos"><%= f.numero(kpi.incidentesAbiertos) %></strong></a>
+  <a class="kpi kpi-teal" href="/admin/usuarios"><span>Cuentas bloqueadas</span><strong data-kpi="bloqueadas"><%= f.numero(kpi.cuentasBloqueadas) %></strong></a>
+</section>
+
+<section class="card gestion" aria-labelledby="gestion-titulo">
+  <h2 id="gestion-titulo">Gestión de incidentes (90 días)</h2>
+  <dl class="gestion-datos">
+    <div><dt>Primera respuesta (media)</dt><dd><%= respuesta.primeraRespuestaHoras === null ? '—' : f.numero(respuesta.primeraRespuestaHoras) + ' h' %></dd></div>
+    <div><dt>Resolución (media)</dt><dd><%= respuesta.resolucionHoras === null ? '—' : f.numero(respuesta.resolucionHoras) + ' h' %></dd></div>
+    <div><dt>Respuestas dentro del SLA</dt><dd><%= respuesta.cumplimientoSla === null ? '—' : respuesta.cumplimientoSla + ' %' %></dd></div>
+    <div><dt>Incidentes reportados</dt><dd><%= f.numero(respuesta.incidentes) %></dd></div>
+  </dl>
+</section>
+
+<section class="grid-panel">
+  <article class="card">
+    <h2>Inicios de sesión últimos 14 días</h2>
+    <div class="chart-box"><canvas id="chart-diario" aria-label="Inicios de sesión exitosos y fallidos por día" role="img"></canvas></div>
+  </article>
+  <article class="card">
+    <h2>Incidentes por categoría</h2>
+    <div class="chart-box"><canvas id="chart-categorias" aria-label="Incidentes por categoría" role="img"></canvas></div>
+  </article>
+  <article class="card">
+    <h2>Intentos fallidos por hora del día (30 días)</h2>
+    <div class="chart-box"><canvas id="chart-horas" aria-label="Intentos fallidos por hora del día" role="img"></canvas></div>
+  </article>
+  <article class="card">
+    <h2>IPs con más intentos fallidos</h2>
+    <table class="table table-compact">
+      <thead><tr><th>IP</th><th class="num">Fallos</th><th class="num">Cuentas</th></tr></thead>
+      <tbody>
+        <% topIps.forEach(r => { %>
+          <tr>
+            <td data-label="IP"><a href="<%= f.qs('/admin/eventos', { ip: r.ip }) %>"><%= r.ip %></a></td>
+            <td data-label="Fallos" class="num"><%= f.numero(r.fallos) %></td>
+            <td data-label="Cuentas" class="num"><%= f.numero(r.cuentas) %></td>
+          </tr>
+        <% }) %>
+        <% if (!topIps.length) { %><tr><td colspan="3" class="muted">Sin intentos fallidos en los últimos 30 días.</td></tr><% } %>
+      </tbody>
+    </table>
+  </article>
+</section>
+
+<section class="card">
+  <div class="card-head">
+    <h2>Alertas pendientes</h2>
+    <a href="/admin/alertas">Ver todas ›</a>
+  </div>
+  <%- include('../admin/_alertas', { filas: alertas, volver: '/panel', enVivo: true, maxVivo: 6 }) %>
+</section>
+
+<script type="application/json" id="panel-data"><%- JSON.stringify(graficos).replace(/</g, '\\u003c') %></script>
+<%- include('../partials/app-bottom', { scripts: ['/vendor/chart.umd.js', '/js/panel.js'] }) %>

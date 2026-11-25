@@ -1,0 +1,10 @@
+<%- include('../partials/app-top') %>
+<section class="card">
+  <nav class="tabs" aria-label="Filtro de alertas">
+    <a href="/admin/alertas" class="<%= vista === 'pendientes' ? 'active' : '' %>">Pendientes</a>
+    <a href="/admin/alertas?vista=todas" class="<%= vista === 'todas' ? 'active' : '' %>">Todas</a>
+  </nav>
+  <%- include('_alertas', { filas, volver: '/admin/alertas', enVivo: vista === 'pendientes' && pagina === 1, maxVivo: 20 }) %>
+  <%- include('../partials/paginacion', { base: '/admin/alertas', params: { vista: vista === 'todas' ? 'todas' : '' } }) %>
+</section>
+<%- include('../partials/app-bottom') %>

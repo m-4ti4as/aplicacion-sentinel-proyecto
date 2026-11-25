@@ -1,0 +1,15 @@
+<% if (locals.user && locals.csrfToken) { %>
+<%- include('../partials/app-top') %>
+<section class="card center narrow-msg">
+  <h2><%= titulo %></h2>
+  <p class="muted"><%= mensaje %></p>
+  <a class="btn btn-primary" href="/panel">Volver al panel</a>
+</section>
+<%- include('../partials/app-bottom') %>
+<% } else { %>
+<%- include('../partials/auth-top') %>
+<h1><%= titulo %></h1>
+<p class="muted"><%= mensaje %></p>
+<a class="btn btn-primary btn-block" href="/login">Ir a iniciar sesión</a>
+<%- include('../partials/auth-bottom') %>
+<% } %>

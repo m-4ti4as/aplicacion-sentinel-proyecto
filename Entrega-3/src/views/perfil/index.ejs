@@ -1,0 +1,60 @@
+<%- include('../partials/app-top') %>
+<div class="grid-2-panel">
+  <section class="card">
+    <h2>Mis datos</h2>
+    <p class="muted small"><%= perfil.email %> · <%= perfil.rol %> · Último acceso: <%= f.fechaHora(perfil.ultimo_login) %></p>
+    <form method="post" action="/perfil" class="form" novalidate data-validate>
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <div class="grid-2">
+        <div class="field">
+          <label for="nombre">Nombre</label>
+          <input id="nombre" name="nombre" required minlength="2" maxlength="60" value="<%= valores.nombre || '' %>" class="<%= errores.nombre ? 'invalid' : '' %>">
+          <%- include('../partials/error-campo', { campo: 'nombre' }) %>
+        </div>
+        <div class="field">
+          <label for="apellido">Apellido</label>
+          <input id="apellido" name="apellido" required minlength="2" maxlength="60" value="<%= valores.apellido || '' %>" class="<%= errores.apellido ? 'invalid' : '' %>">
+          <%- include('../partials/error-campo', { campo: 'apellido' }) %>
+        </div>
+      </div>
+      <div class="field">
+        <label for="area_id">Área</label>
+        <select id="area_id" name="area_id" required class="<%= errores.area_id ? 'invalid' : '' %>">
+          <% areas.forEach(a => { %><option value="<%= a.id %>"<%= String(valores.area_id) === String(a.id) ? ' selected' : '' %>><%= a.nombre %></option><% }) %>
+        </select>
+        <%- include('../partials/error-campo', { campo: 'area_id' }) %>
+      </div>
+      <div class="form-actions"><button type="submit" class="btn btn-primary">Guardar datos</button></div>
+    </form>
+  </section>
+
+  <section class="card">
+    <h2>Cambiar contraseña</h2>
+    <form method="post" action="/perfil/password" class="form" novalidate data-validate>
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <div class="field">
+        <label for="actual">Contraseña actual</label>
+        <input id="actual" name="actual" type="password" autocomplete="current-password" required maxlength="128" class="<%= errores.actual ? 'invalid' : '' %>">
+        <%- include('../partials/error-campo', { campo: 'actual' }) %>
+      </div>
+      <div class="field">
+        <label for="nueva">Nueva contraseña</label>
+        <div class="pw-wrap">
+          <input id="nueva" name="nueva" type="password" autocomplete="new-password" required maxlength="72"
+                 data-strength data-password-policy class="<%= errores.nueva ? 'invalid' : '' %>">
+          <button type="button" class="pw-toggle" data-toggle-password="nueva" aria-label="Mostrar contraseña"><%- include('../partials/icon', { name: 'eye' }) %></button>
+        </div>
+        <div class="strength" aria-hidden="true"><span></span></div>
+        <p class="hint">Mínimo 8 caracteres, con mayúscula, minúscula, número y símbolo.</p>
+        <%- include('../partials/error-campo', { campo: 'nueva' }) %>
+      </div>
+      <div class="field">
+        <label for="nueva2">Confirmar nueva contraseña</label>
+        <input id="nueva2" name="nueva2" type="password" autocomplete="new-password" required maxlength="72" data-match="nueva" class="<%= errores.nueva2 ? 'invalid' : '' %>">
+        <%- include('../partials/error-campo', { campo: 'nueva2' }) %>
+      </div>
+      <div class="form-actions"><button type="submit" class="btn btn-primary">Cambiar contraseña</button></div>
+    </form>
+  </section>
+</div>
+<%- include('../partials/app-bottom') %>

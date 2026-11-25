@@ -1,0 +1,7 @@
+<% if (paginas > 1 || total > 0) { %>
+<nav class="pagination" aria-label="Paginación">
+  <% if (pagina > 1) { %><a class="btn btn-light btn-sm" href="<%= f.qs(base, params, { pagina: pagina - 1 }) %>">‹ Anterior</a><% } %>
+  <span>Página <%= pagina %> de <%= paginas %> · <%= f.numero(total) %> registros</span>
+  <% if (pagina < paginas) { %><a class="btn btn-light btn-sm" href="<%= f.qs(base, params, { pagina: pagina + 1 }) %>">Siguiente ›</a><% } %>
+</nav>
+<% } %>

@@ -1,0 +1,62 @@
+<%- include('../partials/app-top') %>
+<section class="card form-card">
+  <form method="post" action="<%= usuario ? `/admin/usuarios/${usuario.id}` : '/admin/usuarios' %>" class="form" novalidate data-validate>
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <div class="grid-2">
+      <div class="field">
+        <label for="nombre">Nombre *</label>
+        <input id="nombre" name="nombre" required minlength="2" maxlength="60" value="<%= valores.nombre || '' %>" class="<%= errores.nombre ? 'invalid' : '' %>">
+        <%- include('../partials/error-campo', { campo: 'nombre' }) %>
+      </div>
+      <div class="field">
+        <label for="apellido">Apellido *</label>
+        <input id="apellido" name="apellido" required minlength="2" maxlength="60" value="<%= valores.apellido || '' %>" class="<%= errores.apellido ? 'invalid' : '' %>">
+        <%- include('../partials/error-campo', { campo: 'apellido' }) %>
+      </div>
+    </div>
+    <div class="field">
+      <label for="email">Correo *</label>
+      <input id="email" name="email" type="email" required maxlength="190" value="<%= valores.email || '' %>" class="<%= errores.email ? 'invalid' : '' %>">
+      <%- include('../partials/error-campo', { campo: 'email' }) %>
+    </div>
+    <div class="grid-2">
+      <div class="field">
+        <label for="rol_id">Rol (perfil de acceso) *</label>
+        <select id="rol_id" name="rol_id" required class="<%= errores.rol_id ? 'invalid' : '' %>">
+          <% roles.forEach(r => { %><option value="<%= r.id %>"<%= String(valores.rol_id) === String(r.id) ? ' selected' : '' %>><%= r.nombre %></option><% }) %>
+        </select>
+        <%- include('../partials/error-campo', { campo: 'rol_id' }) %>
+      </div>
+      <div class="field">
+        <label for="area_id">Área *</label>
+        <select id="area_id" name="area_id" required class="<%= errores.area_id ? 'invalid' : '' %>" data-msg-required="Selecciona el área">
+          <option value="">Selecciona...</option>
+          <% areas.forEach(a => { %><option value="<%= a.id %>"<%= String(valores.area_id) === String(a.id) ? ' selected' : '' %>><%= a.nombre %></option><% }) %>
+        </select>
+        <%- include('../partials/error-campo', { campo: 'area_id' }) %>
+      </div>
+    </div>
+    <div class="field">
+      <label for="password"><%= usuario ? 'Nueva contraseña (dejar vacío para mantener)' : 'Contraseña inicial *' %></label>
+      <div class="pw-wrap">
+        <input id="password" name="password" type="password" autocomplete="new-password" maxlength="72"
+               <%= usuario ? '' : 'required' %> data-strength data-password-policy class="<%= errores.password ? 'invalid' : '' %>">
+        <button type="button" class="pw-toggle" data-toggle-password="password" aria-label="Mostrar contraseña"><%- include('../partials/icon', { name: 'eye' }) %></button>
+      </div>
+      <div class="strength" aria-hidden="true"><span></span></div>
+      <%- include('../partials/error-campo', { campo: 'password' }) %>
+    </div>
+    <div class="field">
+      <label class="check">
+        <input type="checkbox" name="activo" value="1"<%= String(valores.activo) === '1' || valores.activo === 1 || valores.activo === true ? ' checked' : '' %>>
+        <span>Cuenta activa (puede iniciar sesión)</span>
+      </label>
+      <%- include('../partials/error-campo', { campo: 'activo' }) %>
+    </div>
+    <div class="form-actions">
+      <a href="/admin/usuarios" class="btn btn-light">Cancelar</a>
+      <button type="submit" class="btn btn-primary"><%= usuario ? 'Guardar cambios' : 'Crear usuario' %></button>
+    </div>
+  </form>
+</section>
+<%- include('../partials/app-bottom') %>

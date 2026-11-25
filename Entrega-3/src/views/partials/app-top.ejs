@@ -1,0 +1,72 @@
+<%- include('head') %>
+<body class="app">
+<%
+  const enlaces = esAdmin ? [
+    { grupo: 'General', items: [
+      { href: '/panel', texto: 'Panel de seguridad', icono: 'panel' },
+      { href: '/incidentes/nuevo', texto: 'Reportar incidente', icono: 'plus' },
+      { href: '/incidentes', texto: 'Incidentes', icono: 'flag' },
+      { href: '/activos', texto: 'Activos', icono: 'box' },
+    ]},
+    { grupo: 'Monitoreo', items: [
+      { href: '/admin/alertas', texto: 'Alertas', icono: 'alert' },
+      { href: '/admin/eventos', texto: 'Eventos de acceso', icono: 'list' },
+    ]},
+    { grupo: 'Administración', items: [
+      { href: '/admin/usuarios', texto: 'Usuarios', icono: 'user' },
+    ]},
+    { grupo: 'Cuenta', items: [
+      { href: '/perfil', texto: 'Mi perfil', icono: 'gear' },
+    ]},
+  ] : [
+    { grupo: 'General', items: [
+      { href: '/panel', texto: 'Mi panel', icono: 'panel' },
+      { href: '/incidentes/nuevo', texto: 'Reportar incidente', icono: 'plus' },
+      { href: '/incidentes', texto: 'Mis incidentes', icono: 'flag' },
+      { href: '/activos', texto: 'Mis activos', icono: 'box' },
+    ]},
+    { grupo: 'Cuenta', items: [
+      { href: '/perfil', texto: 'Mi perfil', icono: 'gear' },
+    ]},
+  ];
+  // El enlace activo es el de prefijo más largo que coincide con la ruta actual.
+  let activo = '';
+  enlaces.forEach(g => g.items.forEach(i => {
+    if ((path === i.href || path.startsWith(i.href + '/')) && i.href.length > activo.length) activo = i.href;
+  }));
+  if (path.startsWith('/incidentes/nuevo')) activo = '/incidentes/nuevo';
+%>
+<aside class="sidebar" id="sidebar">
+  <a class="brand" href="/panel"><span class="brand-mark"></span>SentinelData</a>
+  <nav class="nav" aria-label="Menú principal">
+    <% enlaces.forEach(g => { %>
+      <p class="nav-group"><%= g.grupo %></p>
+      <% g.items.forEach(i => { %>
+        <a class="nav-link<%= activo === i.href ? ' active' : '' %>" href="<%= i.href %>"<%= activo === i.href ? ' aria-current=page' : '' %>>
+          <%- include('icon', { name: i.icono }) %><span><%= i.texto %></span>
+        </a>
+      <% }) %>
+    <% }) %>
+  </nav>
+  <div class="sidebar-user">
+    <strong><%= user.nombre %> <%= user.apellido %></strong>
+    <span><%= user.rol %></span>
+    <form method="post" action="/logout">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <button type="submit" class="btn btn-light btn-block">Cerrar sesión</button>
+    </form>
+  </div>
+</aside>
+<div class="overlay" id="overlay" hidden></div>
+<div class="main">
+  <header class="topbar">
+    <button type="button" class="menu-btn" id="menu-btn" aria-controls="sidebar" aria-expanded="false" aria-label="Abrir menú">
+      <%- include('icon', { name: 'menu' }) %>
+    </button>
+    <h1><%= titulo %></h1>
+    <span class="live" id="live-indicator" hidden title="Conectado: los datos se actualizan en tiempo real">En vivo</span>
+  </header>
+  <main class="content">
+    <% flash.forEach(m => { %>
+      <div class="flash flash-<%= m.tipo %>" role="status"><%= m.texto %></div>
+    <% }) %>

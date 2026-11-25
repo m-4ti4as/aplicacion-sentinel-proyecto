@@ -1,0 +1,54 @@
+<%- include('../partials/app-top') %>
+
+<section class="hero-card">
+  <div>
+    <h2>Hola, <%= user.nombre %> 👋</h2>
+    <p>¿Detectaste un correo sospechoso, un equipo extraño o un acceso no autorizado? Repórtalo de inmediato.</p>
+  </div>
+  <a class="btn btn-white" href="/incidentes/nuevo"><%- include('../partials/icon', { name: 'plus' }) %> Reportar incidente</a>
+</section>
+
+<section class="kpis kpis-3">
+  <div class="kpi kpi-teal"><span>Incidentes reportados</span><strong><%= resumen.total %></strong></div>
+  <div class="kpi kpi-orange"><span>En curso</span><strong><%= resumen.enCurso %></strong></div>
+  <div class="kpi kpi-green"><span>Cerrados</span><strong><%= resumen.cerrados %></strong></div>
+</section>
+
+<section class="grid-2-panel">
+  <article class="card">
+    <div class="card-head">
+      <h2>Mis incidentes recientes</h2>
+      <a href="/incidentes">Ver todos ›</a>
+    </div>
+    <% if (!recientes.length) { %>
+      <p class="muted empty">Aún no has reportado incidentes.</p>
+    <% } %>
+    <ul class="item-list">
+      <% recientes.forEach(i => { %>
+        <li>
+          <a href="/incidentes/<%= i.id %>"><strong><%= i.codigo %></strong> · <%= i.titulo %></a>
+          <p class="meta">
+            <span class="badge badge-<%= f.claseNivel(i.severidad) %>"><%= i.severidad %></span>
+            <span class="estado estado-<%= f.claseEstado(i.estado, i.es_final) %>"><%= i.estado %></span>
+            <span><%= f.fechaHora(i.creado_en) %></span>
+          </p>
+        </li>
+      <% }) %>
+    </ul>
+  </article>
+  <article class="card">
+    <h2>Mis últimos accesos</h2>
+    <p class="muted small">Si no reconoces alguno de estos accesos, cambia tu contraseña y reporta un incidente.</p>
+    <ul class="access-list">
+      <% accesos.forEach(a => { %>
+        <li>
+          <span class="dot dot-<%= a.codigo === 'LOGIN_OK' ? 'ok' : (a.codigo === 'LOGIN_FALLIDO' || a.codigo === 'ACCESO_DENEGADO' || a.codigo === 'CUENTA_BLOQUEADA' ? 'bad' : 'neutral') %>"></span>
+          <span class="access-what"><%= a.descripcion %></span>
+          <span class="access-when"><%= a.ip %> · <%= f.fechaHora(a.creado_en) %></span>
+        </li>
+      <% }) %>
+    </ul>
+  </article>
+</section>
+
+<%- include('../partials/app-bottom') %>

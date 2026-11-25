@@ -1,0 +1,54 @@
+<%- include('../partials/app-top') %>
+<section class="card">
+  <form method="get" action="/admin/eventos" class="filters">
+    <div class="field">
+      <label for="tipo">Tipo de evento</label>
+      <select id="tipo" name="tipo">
+        <option value="">Todos</option>
+        <% tipos.forEach(t => { %><option value="<%= t.id %>"<%= filtros.tipo === t.id ? ' selected' : '' %>><%= t.descripcion %></option><% }) %>
+      </select>
+    </div>
+    <div class="field">
+      <label for="email">Correo</label>
+      <input id="email" name="email" value="<%= filtros.email %>" maxlength="190">
+    </div>
+    <div class="field">
+      <label for="ip">IP</label>
+      <input id="ip" name="ip" value="<%= filtros.ip %>" maxlength="45">
+    </div>
+    <div class="field">
+      <label for="desde">Desde</label>
+      <input id="desde" name="desde" type="date" value="<%= filtros.desde %>">
+    </div>
+    <div class="field">
+      <label for="hasta">Hasta</label>
+      <input id="hasta" name="hasta" type="date" value="<%= filtros.hasta %>">
+    </div>
+    <div class="filters-actions">
+      <button type="submit" class="btn btn-light">Filtrar</button>
+      <a href="/admin/eventos" class="link-sm">Limpiar</a>
+    </div>
+  </form>
+
+  <% if (enVivo) { %>
+    <p class="muted small live-note">Esta página se actualiza en tiempo real: los nuevos eventos aparecen arriba sin recargar.</p>
+  <% } %>
+  <table class="table table-cards">
+    <thead><tr><th>Fecha</th><th>Evento</th><th>Usuario / correo</th><th>IP</th><th>Navegador</th></tr></thead>
+    <tbody id="eventos-tbody" data-live="<%= enVivo ? '1' : '0' %>" data-max="25">
+      <% const malos = ['LOGIN_FALLIDO', 'CUENTA_BLOQUEADA', 'ACCESO_DENEGADO']; %>
+      <% filas.forEach(e => { %>
+        <tr>
+          <td data-label="Fecha" class="nowrap"><%= f.fechaHora(e.creado_en) %></td>
+          <td data-label="Evento" class="<%= malos.includes(e.codigo) ? 'text-danger' : '' %>"><%= e.evento %></td>
+          <td data-label="Usuario"><%= e.usuario || e.email_intentado || '—' %></td>
+          <td data-label="IP"><a href="<%= f.qs('/admin/eventos', { ip: e.ip }) %>"><code><%= e.ip %></code></a></td>
+          <td data-label="Navegador" class="truncate" title="<%= e.user_agent || '' %>"><%= e.user_agent || '—' %></td>
+        </tr>
+      <% }) %>
+      <% if (!filas.length) { %><tr><td colspan="5" class="muted empty">No hay eventos que coincidan con los filtros.</td></tr><% } %>
+    </tbody>
+  </table>
+  <%- include('../partials/paginacion', { base: '/admin/eventos', params: filtros }) %>
+</section>
+<%- include('../partials/app-bottom') %>

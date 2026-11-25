@@ -1,0 +1,9 @@
+  </main>
+</div>
+<div class="toasts" id="toasts" role="status" aria-live="polite"></div>
+<% if (typeof scripts !== 'undefined') { scripts.forEach(s => { %><script src="<%= s %>"></script>
+<% }) } %><script src="/js/app.js"></script>
+<script src="/socket.io/socket.io.min.js"></script>
+<script src="/js/tiempo-real.js"></script>
+</body>
+</html>

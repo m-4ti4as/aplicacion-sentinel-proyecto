@@ -1,0 +1,66 @@
+<%- include('../partials/auth-top') %>
+<h1>Crear cuenta</h1>
+<p class="muted">Las cuentas nuevas se crean con perfil <strong>Colaborador</strong>.</p>
+
+<form method="post" action="/registro" class="form" novalidate data-validate>
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+  <div class="grid-2">
+    <div class="field">
+      <label for="nombre">Nombre</label>
+      <input id="nombre" name="nombre" autocomplete="given-name" required minlength="2" maxlength="60"
+             value="<%= valores.nombre || '' %>" class="<%= errores.nombre ? 'invalid' : '' %>"
+             data-msg-minlength="Debe tener al menos 2 caracteres">
+      <%- include('../partials/error-campo', { campo: 'nombre' }) %>
+    </div>
+    <div class="field">
+      <label for="apellido">Apellido</label>
+      <input id="apellido" name="apellido" autocomplete="family-name" required minlength="2" maxlength="60"
+             value="<%= valores.apellido || '' %>" class="<%= errores.apellido ? 'invalid' : '' %>"
+             data-msg-minlength="Debe tener al menos 2 caracteres">
+      <%- include('../partials/error-campo', { campo: 'apellido' }) %>
+    </div>
+  </div>
+  <div class="field">
+    <label for="email">Correo corporativo</label>
+    <input id="email" name="email" type="email" autocomplete="email" required maxlength="190"
+           value="<%= valores.email || '' %>" class="<%= errores.email ? 'invalid' : '' %>">
+    <%- include('../partials/error-campo', { campo: 'email' }) %>
+  </div>
+  <div class="field">
+    <label for="area_id">Área</label>
+    <select id="area_id" name="area_id" required class="<%= errores.area_id ? 'invalid' : '' %>" data-msg-required="Selecciona tu área">
+      <option value="">Selecciona tu área</option>
+      <% areas.forEach(a => { %>
+        <option value="<%= a.id %>"<%= String(valores.area_id) === String(a.id) ? ' selected' : '' %>><%= a.nombre %></option>
+      <% }) %>
+    </select>
+    <%- include('../partials/error-campo', { campo: 'area_id' }) %>
+  </div>
+  <div class="field">
+    <label for="password">Contraseña</label>
+    <div class="pw-wrap">
+      <input id="password" name="password" type="password" autocomplete="new-password" required maxlength="72"
+             data-strength data-password-policy class="<%= errores.password ? 'invalid' : '' %>">
+      <button type="button" class="pw-toggle" data-toggle-password="password" aria-label="Mostrar contraseña"><%- include('../partials/icon', { name: 'eye' }) %></button>
+    </div>
+    <div class="strength" aria-hidden="true"><span></span></div>
+    <p class="hint">Mínimo 8 caracteres, con mayúscula, minúscula, número y símbolo.</p>
+    <%- include('../partials/error-campo', { campo: 'password' }) %>
+  </div>
+  <div class="field">
+    <label for="password2">Confirmar contraseña</label>
+    <input id="password2" name="password2" type="password" autocomplete="new-password" required maxlength="72"
+           data-match="password" class="<%= errores.password2 ? 'invalid' : '' %>" data-msg-required="Confirma tu contraseña">
+    <%- include('../partials/error-campo', { campo: 'password2' }) %>
+  </div>
+  <div class="field">
+    <label class="check">
+      <input type="checkbox" name="acepta" value="1" required data-msg-required="Debes aceptar la política de uso">
+      <span>Acepto la política de uso aceptable y el tratamiento de mis datos de acceso con fines de seguridad.</span>
+    </label>
+    <%- include('../partials/error-campo', { campo: 'acepta' }) %>
+  </div>
+  <button type="submit" class="btn btn-primary btn-block">Crear cuenta</button>
+  <p class="center muted">¿Ya tienes cuenta? <a href="/login">Inicia sesión</a></p>
+</form>
+<%- include('../partials/auth-bottom') %>

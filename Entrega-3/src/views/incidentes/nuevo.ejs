@@ -1,0 +1,66 @@
+<%- include('../partials/app-top') %>
+<section class="card form-card">
+  <p class="muted">Describe lo ocurrido con el mayor detalle posible. El equipo de seguridad recibirá el reporte y te mantendrá informado del avance.</p>
+  <form method="post" action="/incidentes" class="form" novalidate data-validate>
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <div class="field">
+      <label for="titulo">Título del incidente *</label>
+      <input id="titulo" name="titulo" required minlength="5" maxlength="150" value="<%= valores.titulo || '' %>"
+             placeholder="Ej.: Correo sospechoso solicitando credenciales del ERP" class="<%= errores.titulo ? 'invalid' : '' %>"
+             data-msg-minlength="Describe el incidente en al menos 5 caracteres">
+      <%- include('../partials/error-campo', { campo: 'titulo' }) %>
+    </div>
+    <div class="grid-2">
+      <div class="field">
+        <label for="categoria_id">Categoría *</label>
+        <select id="categoria_id" name="categoria_id" required class="<%= errores.categoria_id ? 'invalid' : '' %>" data-msg-required="Selecciona una categoría">
+          <option value="">Selecciona...</option>
+          <% categorias.forEach(c => { %>
+            <option value="<%= c.id %>" title="<%= c.descripcion %>"<%= String(valores.categoria_id) === String(c.id) ? ' selected' : '' %>><%= c.nombre %></option>
+          <% }) %>
+        </select>
+        <%- include('../partials/error-campo', { campo: 'categoria_id' }) %>
+      </div>
+      <div class="field">
+        <label for="severidad_id">Severidad percibida *</label>
+        <select id="severidad_id" name="severidad_id" required class="<%= errores.severidad_id ? 'invalid' : '' %>" data-msg-required="Selecciona la severidad percibida">
+          <option value="">Selecciona...</option>
+          <% severidades.forEach(s => { %>
+            <option value="<%= s.id %>"<%= String(valores.severidad_id) === String(s.id) ? ' selected' : '' %>><%= s.nombre %> — respuesta en <%= s.sla_horas %> h</option>
+          <% }) %>
+        </select>
+        <%- include('../partials/error-campo', { campo: 'severidad_id' }) %>
+      </div>
+      <div class="field">
+        <label for="fecha_deteccion">Fecha y hora de detección *</label>
+        <input id="fecha_deteccion" name="fecha_deteccion" type="datetime-local" required data-max-now
+               value="<%= valores.fecha_deteccion || f.inputDateTime(new Date()) %>" max="<%= f.inputDateTime(new Date()) %>"
+               class="<%= errores.fecha_deteccion ? 'invalid' : '' %>" data-msg-max="La fecha de detección no puede ser futura">
+        <%- include('../partials/error-campo', { campo: 'fecha_deteccion' }) %>
+      </div>
+      <div class="field">
+        <label for="activo_id">Activo afectado (opcional)</label>
+        <select id="activo_id" name="activo_id" class="<%= errores.activo_id ? 'invalid' : '' %>">
+          <option value="">No aplica / No lo sé</option>
+          <% activos.forEach(a => { %>
+            <option value="<%= a.id %>"<%= String(valores.activo_id) === String(a.id) ? ' selected' : '' %>><%= a.nombre %> (<%= a.identificador %>)</option>
+          <% }) %>
+        </select>
+        <%- include('../partials/error-campo', { campo: 'activo_id' }) %>
+      </div>
+    </div>
+    <div class="field">
+      <label for="descripcion">Descripción detallada *</label>
+      <textarea id="descripcion" name="descripcion" rows="7" required minlength="10" maxlength="5000" data-counter
+                placeholder="¿Qué observaste? ¿Cuándo y dónde? ¿Hiciste clic en algún enlace o entregaste información?"
+                class="<%= errores.descripcion ? 'invalid' : '' %>" data-msg-minlength="Describe lo ocurrido en al menos 10 caracteres"><%= valores.descripcion || '' %></textarea>
+      <p class="hint counter" data-counter-for="descripcion">0 / 5000 caracteres</p>
+      <%- include('../partials/error-campo', { campo: 'descripcion' }) %>
+    </div>
+    <div class="form-actions">
+      <a href="/panel" class="btn btn-light">Cancelar</a>
+      <button type="submit" class="btn btn-primary">Enviar reporte</button>
+    </div>
+  </form>
+</section>
+<%- include('../partials/app-bottom') %>

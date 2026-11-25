@@ -1,0 +1,21 @@
+<%- include('head') %>
+<body class="auth">
+<section class="auth-hero">
+  <div class="auth-hero-inner">
+    <p class="brand"><span class="brand-mark"></span>SentinelData</p>
+    <h2>Seguridad de la información basada en datos</h2>
+    <p class="lead">Reporta incidentes, protege los activos de la empresa y detecta accesos sospechosos en tiempo real.</p>
+    <ul class="checks">
+      <li><%- include('icon', { name: 'check' }) %>Detección automática de fuerza bruta y accesos anómalos</li>
+      <li><%- include('icon', { name: 'check' }) %>Trazabilidad completa de cada incidente</li>
+      <li><%- include('icon', { name: 'check' }) %>Contraseñas cifradas y sesiones protegidas</li>
+    </ul>
+    <p class="legal">TransLogix Ltda. · Uso exclusivo de personal autorizado</p>
+  </div>
+</section>
+<main class="auth-panel">
+  <div class="auth-box">
+    <p class="brand brand-mobile"><span class="brand-mark"></span>SentinelData</p>
+    <% flash.forEach(m => { %>
+      <div class="flash flash-<%= m.tipo %>" role="status"><%= m.texto %></div>
+    <% }) %>

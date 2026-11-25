@@ -1,0 +1,45 @@
+<%- include('../partials/app-top') %>
+<section class="card">
+  <form method="get" action="/admin/usuarios" class="filters">
+    <div class="field field-grow">
+      <label for="q">Buscar</label>
+      <input id="q" name="q" value="<%= q %>" placeholder="Nombre o correo" maxlength="100">
+    </div>
+    <div class="filters-actions">
+      <button type="submit" class="btn btn-light">Buscar</button>
+      <a href="/admin/usuarios/nuevo" class="btn btn-primary"><%- include('../partials/icon', { name: 'plus' }) %> Crear usuario</a>
+    </div>
+  </form>
+
+  <table class="table table-cards">
+    <thead><tr><th>Nombre</th><th>Correo</th><th>Perfil</th><th>Área</th><th>Estado</th><th>Último acceso</th><th></th></tr></thead>
+    <tbody>
+      <% filas.forEach(u => { const bloqueado = u.bloqueado_hasta && new Date(u.bloqueado_hasta) > ahora; %>
+        <tr>
+          <td data-label="Nombre"><strong><%= u.nombre %> <%= u.apellido %></strong></td>
+          <td data-label="Correo"><%= u.email %></td>
+          <td data-label="Perfil"><span class="pill<%= u.rol === 'Administrador' ? ' pill-violet' : '' %>"><%= u.rol %></span></td>
+          <td data-label="Área"><%= u.area %></td>
+          <td data-label="Estado">
+            <% if (!u.activo) { %><span class="estado estado-cerrado">Inactiva</span>
+            <% } else if (bloqueado) { %><span class="estado estado-bloqueado">Bloqueada</span>
+            <% } else { %><span class="estado estado-ok">Activa</span><% } %>
+          </td>
+          <td data-label="Último acceso" class="nowrap"><%= f.fechaHora(u.ultimo_login) %></td>
+          <td class="row-actions">
+            <a href="/admin/usuarios/<%= u.id %>/editar">Editar</a>
+            <% if (bloqueado) { %>
+              <form method="post" action="/admin/usuarios/<%= u.id %>/desbloquear">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <button type="submit" class="btn btn-light btn-sm">Desbloquear</button>
+              </form>
+            <% } %>
+          </td>
+        </tr>
+      <% }) %>
+      <% if (!filas.length) { %><tr><td colspan="7" class="muted empty">No hay usuarios que coincidan con la búsqueda.</td></tr><% } %>
+    </tbody>
+  </table>
+  <%- include('../partials/paginacion', { base: '/admin/usuarios', params: { q } }) %>
+</section>
+<%- include('../partials/app-bottom') %>

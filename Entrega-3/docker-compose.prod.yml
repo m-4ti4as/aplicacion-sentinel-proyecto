@@ -1,0 +1,77 @@
+# SentinelData - producción en un servidor propio (OE6)
+#
+#   cp .env.prod.example .env.prod      # completar los valores
+#   docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --build
+#
+# Caddy obtiene y renueva el certificado HTTPS de DOMINIO (puertos 80 y 443).
+# MySQL y la aplicación quedan en la red interna, sin puertos publicados.
+name: sentineldata-prod
+
+services:
+  db:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?falta DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: sentinel
+      MYSQL_USER: sentinel
+      MYSQL_PASSWORD: ${DB_PASSWORD:?falta DB_PASSWORD}
+      TZ: America/Santiago
+    command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_0900_ai_ci", "--innodb-buffer-pool-size=512M"]
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -usentinel -p$$MYSQL_PASSWORD --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      APP_URL: https://${DOMINIO:?falta DOMINIO}
+      TZ: America/Santiago
+      TRUST_PROXY: 1
+      SESSION_SECRET: ${SESSION_SECRET:?falta SESSION_SECRET}
+      JWT_SECRET: ${JWT_SECRET:?falta JWT_SECRET}
+      DB_HOST: db
+      DB_USER: sentinel
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: sentinel
+      SEED_DEMO: ${SEED_DEMO:-true}
+      SMTP_HOST: ${SMTP_HOST:?falta SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_SECURE: ${SMTP_SECURE:-false}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      SMTP_REQUIRE_TLS: ${SMTP_REQUIRE_TLS:-true}
+      MAIL_FROM: ${MAIL_FROM:?falta MAIL_FROM}
+    volumes:
+      - archivo:/app/archivo
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on:
+      - app
+    environment:
+      DOMINIO: ${DOMINIO}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  db_data:
+  archivo:
+  caddy_data:
+  caddy_config:

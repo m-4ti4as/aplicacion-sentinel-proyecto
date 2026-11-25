@@ -1,0 +1,41 @@
+<%- include('../partials/app-top') %>
+<section class="card">
+  <form method="get" action="/activos" class="filters">
+    <div class="field field-grow">
+      <label for="q">Buscar</label>
+      <input id="q" name="q" value="<%= q %>" placeholder="Nombre, serie, hostname o IP" maxlength="100">
+    </div>
+    <div class="filters-actions">
+      <button type="submit" class="btn btn-light">Buscar</button>
+      <% if (esAdmin) { %><a href="/activos/nuevo" class="btn btn-primary"><%- include('../partials/icon', { name: 'plus' }) %> Registrar activo</a><% } %>
+    </div>
+  </form>
+
+  <table class="table table-cards">
+    <thead>
+      <tr>
+        <th>Nombre</th><th>Identificador</th><th>Tipo</th><th>Área</th><th>Criticidad</th><th>Responsable</th>
+        <th class="num">Incidentes</th><% if (esAdmin) { %><th></th><% } %>
+      </tr>
+    </thead>
+    <tbody>
+      <% filas.forEach(a => { %>
+        <tr>
+          <td data-label="Nombre"><strong><%= a.nombre %></strong><% if (a.ubicacion) { %><br><span class="meta"><%= a.ubicacion %></span><% } %></td>
+          <td data-label="Identificador"><code><%= a.identificador %></code></td>
+          <td data-label="Tipo"><%= a.tipo %></td>
+          <td data-label="Área"><%= a.area %></td>
+          <td data-label="Criticidad"><span class="badge badge-<%= f.claseNivel(a.criticidad) %>"><%= a.criticidad %></span></td>
+          <td data-label="Responsable"><%= a.responsable || 'Sin responsable' %></td>
+          <td data-label="Incidentes" class="num"><%= a.incidentes %></td>
+          <% if (esAdmin) { %><td><a href="/activos/<%= a.id %>/editar">Editar</a></td><% } %>
+        </tr>
+      <% }) %>
+      <% if (!filas.length) { %>
+        <tr><td colspan="8" class="muted empty"><%= esAdmin ? 'No hay activos que coincidan con la búsqueda.' : 'No tienes activos asignados a tu cargo.' %></td></tr>
+      <% } %>
+    </tbody>
+  </table>
+  <%- include('../partials/paginacion', { base: '/activos', params: { q } }) %>
+</section>
+<%- include('../partials/app-bottom') %>

@@ -1,0 +1,65 @@
+# SentinelData - entorno de desarrollo
+#   docker compose up -d --build
+#   App:     http://localhost:3000
+#   Mailpit: http://localhost:8025
+services:
+  db:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root_dev_only
+      MYSQL_DATABASE: sentinel
+      MYSQL_USER: sentinel
+      MYSQL_PASSWORD: sentinel_dev
+      TZ: America/Santiago
+    command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_0900_ai_ci", "--innodb-buffer-pool-size=512M"]
+    ports:
+      - "${DB_PUERTO:-3306}:3306"   # DB_PUERTO=3307 si el 3306 está ocupado
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -usentinel -psentinel_dev --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  mailpit:
+    image: axllent/mailpit:v1.20
+    restart: unless-stopped
+    ports:
+      - "${MAILPIT_PUERTO:-8025}:8025"   # interfaz web
+      - "${SMTP_PUERTO:-1025}:1025"   # SMTP
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      mailpit:
+        condition: service_started
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      APP_URL: http://localhost:3000
+      TZ: America/Santiago
+      SESSION_SECRET: dev-solo-local-cambiar-en-produccion-7f3a9c
+      JWT_SECRET: dev-solo-local-jwt-cambiar-en-produccion-2b81e4
+      JWT_MINUTES: 15
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USER: sentinel
+      DB_PASSWORD: sentinel_dev
+      DB_NAME: sentinel
+      SEED_DEMO: "true"
+      SMTP_HOST: mailpit
+      SMTP_PORT: 1025
+      SMTP_SECURE: "false"
+      MAIL_FROM: "SentinelData <no-reply@translogix.cl>"
+      # Más holgado en desarrollo para poder repetir las pruebas e2e
+      AUTH_RATE_LIMIT: 200
+    ports:
+      - "${APP_PUERTO:-3000}:3000"
+
+volumes:
+  db_data:

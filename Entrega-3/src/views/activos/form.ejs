@@ -1,0 +1,69 @@
+<%- include('../partials/app-top') %>
+<section class="card form-card">
+  <form method="post" action="<%= activo ? `/activos/${activo.id}` : '/activos' %>" class="form" novalidate data-validate>
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <div class="grid-2">
+      <div class="field">
+        <label for="nombre">Nombre del activo *</label>
+        <input id="nombre" name="nombre" required minlength="3" maxlength="120" value="<%= valores.nombre || '' %>"
+               placeholder="Ej.: Servidor ERP principal" class="<%= errores.nombre ? 'invalid' : '' %>">
+        <%- include('../partials/error-campo', { campo: 'nombre' }) %>
+      </div>
+      <div class="field">
+        <label for="identificador">Identificador único *</label>
+        <input id="identificador" name="identificador" required maxlength="60" value="<%= valores.identificador || '' %>"
+               pattern="[A-Za-z0-9][A-Za-z0-9._:\-]{1,59}" placeholder="N° de serie, hostname o IP"
+               class="<%= errores.identificador ? 'invalid' : '' %>"
+               data-msg-pattern="Usa entre 2 y 60 caracteres: letras, números, punto, guion, dos puntos o guion bajo">
+        <%- include('../partials/error-campo', { campo: 'identificador' }) %>
+      </div>
+    </div>
+    <div class="grid-3">
+      <div class="field">
+        <label for="tipo_activo_id">Tipo *</label>
+        <select id="tipo_activo_id" name="tipo_activo_id" required class="<%= errores.tipo_activo_id ? 'invalid' : '' %>" data-msg-required="Selecciona el tipo">
+          <option value="">Selecciona...</option>
+          <% tipos.forEach(t => { %><option value="<%= t.id %>"<%= String(valores.tipo_activo_id) === String(t.id) ? ' selected' : '' %>><%= t.nombre %></option><% }) %>
+        </select>
+        <%- include('../partials/error-campo', { campo: 'tipo_activo_id' }) %>
+      </div>
+      <div class="field">
+        <label for="area_id">Área *</label>
+        <select id="area_id" name="area_id" required class="<%= errores.area_id ? 'invalid' : '' %>" data-msg-required="Selecciona el área">
+          <option value="">Selecciona...</option>
+          <% areas.forEach(a => { %><option value="<%= a.id %>"<%= String(valores.area_id) === String(a.id) ? ' selected' : '' %>><%= a.nombre %></option><% }) %>
+        </select>
+        <%- include('../partials/error-campo', { campo: 'area_id' }) %>
+      </div>
+      <div class="field">
+        <label for="criticidad">Criticidad *</label>
+        <select id="criticidad" name="criticidad" required class="<%= errores.criticidad ? 'invalid' : '' %>">
+          <% const nombres = { BAJA: 'Baja', MEDIA: 'Media', ALTA: 'Alta', CRITICA: 'Crítica' }; %>
+          <% criticidades.forEach(c => { %><option value="<%= c %>"<%= valores.criticidad === c ? ' selected' : '' %>><%= nombres[c] %></option><% }) %>
+        </select>
+        <%- include('../partials/error-campo', { campo: 'criticidad' }) %>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="field">
+        <label for="responsable_id">Responsable</label>
+        <select id="responsable_id" name="responsable_id" class="<%= errores.responsable_id ? 'invalid' : '' %>">
+          <option value="">Sin responsable</option>
+          <% usuarios.forEach(u => { %><option value="<%= u.id %>"<%= String(valores.responsable_id) === String(u.id) ? ' selected' : '' %>><%= u.nombre %> <%= u.apellido %></option><% }) %>
+        </select>
+        <%- include('../partials/error-campo', { campo: 'responsable_id' }) %>
+      </div>
+      <div class="field">
+        <label for="ubicacion">Ubicación</label>
+        <input id="ubicacion" name="ubicacion" maxlength="120" value="<%= valores.ubicacion || '' %>"
+               placeholder="Ej.: Sala de servidores, Casa Matriz" class="<%= errores.ubicacion ? 'invalid' : '' %>">
+        <%- include('../partials/error-campo', { campo: 'ubicacion' }) %>
+      </div>
+    </div>
+    <div class="form-actions">
+      <a href="/activos" class="btn btn-light">Cancelar</a>
+      <button type="submit" class="btn btn-primary"><%= activo ? 'Guardar cambios' : 'Registrar activo' %></button>
+    </div>
+  </form>
+</section>
+<%- include('../partials/app-bottom') %>
